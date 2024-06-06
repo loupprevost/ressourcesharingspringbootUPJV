@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Gestion bancaire</title>
+    </head>
+    <body>
+        <div th:fragment="menubar">
+            <nav class="navbar navbar-expand-md bg-dark navbar-dark">
+                <!-- Brand -->
+                <a class="navbar-brand" th:href="@{/}">RessourceSharing</a>
+                <!-- Toggler/collapsibe Button -->
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <!-- Navbar links -->
+                <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                    <ul class="navbar-nav mr-auto">
+                        <!-- Éléments à gauche -->
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/ressources}">Toutes les Ressources</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/utilisateurs}">Tous les utilisateurs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/messages}">Messagerie</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/demandes}">Mes demandes d'emprunt</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        <!-- Éléments à droite -->
+                        <li class="nav-item">
+                            <p th:if="${session.utilisateur != null}" class="nav-link text-white">
+                                Bienvenue
+                                <span th:text="${session.utilisateur.prenom}"></span>
+                                <span th:text="${session.utilisateur.nom}"></span>
+                            </p>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{'/utilisateur/profil'}">Mon profil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-info" th:href="@{/login}">Déconnexion</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div th:if="${session.error}">
+                <div class="alert alert-danger pb-0" role="alert">
+                    <p th:text="${session.error}"></p>
+                </div>
+            </div>
+            <div th:if="${session.success}">
+                <div class="alert alert-success pb-0" role="alert">
+                    <p th:text="${session.success}"></p>
+                </div>
+            </div>
+            <script>
+                fetch('/emptySession', {
+                    method: 'GET'
+                });
+            </script>
+        </div>
+    </body>
+</html>

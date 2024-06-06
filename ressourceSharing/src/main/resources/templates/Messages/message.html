@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${destinataire.nomPrenom()}"></title>
+    <style>
+        textarea {
+            resize: none;
+            overflow: hidden;
+            min-height: 50px;
+            width: 100%;
+        }
+        .messageList {
+            overflow-y: scroll;
+            max-height: 63vh;
+        }
+    </style>
+</head>
+<body>
+  <div th:replace="~{Common/menu_bar :: menubar}"></div>
+  <h1 class="text-center" th:text="${destinataire.prenomNom()}"></h1>
+    <div class="container">
+        <div class="row mx-auto card mt-5 pt-2" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)">
+            <div class="messageList px-3" id="messageList">
+                <h2 class="text-center" th:if="${messages.isEmpty()}">Aucun message</h2>
+                <div class="px-2" th:each="message : ${messages}">
+                    <div th:if="${message.utilisateurEmetteur.getId()} == ${session.utilisateur.getId()}">
+                        <div class="row justify-content-end">
+                            <div class="p-2 mb-3" style="border-width: 2px; border-radius: 10px;">
+                                <div class="row justify-content-end">
+                                    <h6 th:text="${message.utilisateurEmetteur.prenomNom()}" style="font-size: x-small">
+                                        Nom Prénom
+                                    </h6>
+                                </div>
+                                <div class="row justify-content-end" style="white-space: pre-wrap;background-color: darkturquoise; border-radius: 10px; padding: 5px 15px 0 15px;">
+                                    <p th:text="${message.contenu}">dernier message</p>
+                                </div>
+                                <div class="row justify-content-end" style="margin-left: auto">
+                                    <h6 style="font-size: x-small" th:text="${message.getDateAsString()}">date</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${message.utilisateurEmetteur.getId()} != ${session.utilisateur.getId()}">
+                        <div class="row justify-content-start">
+                            <div class="p-2 mb-3" style="border-width: 2px; border-radius: 10px;">
+                                <div class="row justify-content-start" style="font-size: x-small">
+                                    <h6 th:text="${message.utilisateurEmetteur.nomPrenom()}" style="font-size: x-small">
+                                        Nom Prénom
+                                    </h6>
+                                </div>
+                                <div class="row justify-content-start" style="white-space: pre-wrap;background-color: #d5d5d5; border-radius: 10px; padding: 5px 15px 0 15px;">
+                                    <p th:text="${message.contenu}">dernier message</p>
+                                </div>
+                                <div class="row justify-content-start" style="margin-left:-15px">
+                                    <h6 style="font-size: x-small" th:text="${message.getDateAsString()}">date</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-3 mt-3">
+                <div class="row border border-dark rounded p-1 pt-3">
+                    <form class="col-md-11" id="newMessage" method="post" th:action="@{/message/{id}(id=${newMessage.utilisateurRecepteur.getId()})}" th:object="${newMessage}">
+                        <div class="form-group">
+                            <input type="hidden" th:field="*{utilisateurEmetteur}" id="emetteur" name="emetteur" th:value="${session.utilisateur}">
+                            <input type="hidden" th:field="*{utilisateurRecepteur}" id="recepteur" name="recepteur" th:value="${destinataire}">
+                            <textarea oninput="autoResize(this)" required th:field="*{contenu}" class="form-control" id="contenu" name="contenu" placeholder="Message"></textarea>
+                        </div>
+                    </form>
+                    <div class="col-md-1">
+                        <div class="d-flex justify-content-end mt-2">
+                            <input type="submit" form="newMessage" class="btn btn-primary mt-2" value="Envoyer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    window.onload = function() {
+        var messageList = document.getElementById('messageList');
+        messageList.scrollTop = messageList.scrollHeight;
+    };
+</script>
+</html>

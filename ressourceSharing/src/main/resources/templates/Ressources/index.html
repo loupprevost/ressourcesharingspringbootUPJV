@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<head>
+    <meta charset="UTF-8">
+    <title>Ressources</title>
+    <script src="https://kit.fontawesome.com/002d626c4c.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div th:replace="~{Common/menu_bar :: menubar}"></div>
+    <div class="container">
+        <div class="row mx-auto card m-5 py-5" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)">
+            <div class="col-md-12">
+                <h1 class="text-center">Liste des ressources</h1>
+                <hr>
+                <div class="row mb-5">
+                    <div class="col-md-6">
+                        <label for="ressourceSearch">Rechercher une ressource</label>
+                        <input
+                                type="text"
+                                class="form-control"
+                                id="ressourceSearch"
+                                name="ressourceSearch"
+                                placeholder="Rechercher une ressource"
+                        />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="typeRessource">Filtrer sur type de ressource</label>
+                        <select class="form-control col-md-3" id="typeRessource" name="typeRessource">
+                            <option value="Toutes">Toutes</option>
+                            <option value="e6e6ff">Matériel</option>
+                            <option value="e6ffe9">Savoir faire</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="overflow: auto; max-height: 70vh">
+                    <!-- Boucle sur les ressources pour afficher des cartes -->
+                    <div th:each="ressource : ${ressources}" class="col-md-4 mb-4">
+                        <div class="card" style="box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)">
+                            <th:block th:with="backgroundColor=${ressource.getBackground()}">
+                                <!--<img th:src="${ressource.image}" class="card-img-top" alt="Image de la ressource">-->
+                                <div class="card-body" th:style="'background-color:' + ${backgroundColor}">
+                                    <h5 class="card-title" th:text="${ressource.nom}"></h5>
+                                    <p class="card-text" th:text="${ressource.description}"></p>
+                                    <a th:if="${session.utilisateur.isAdmin()}" th:href="@{/ressource/edit/{id}(id=${ressource.id})}" class="btn btn-primary">Modifier</a>
+                                    <a th:if="${session.utilisateur.isAdmin()}" th:href="@{/ressource/delete/{id}(id=${ressource.id})}" class="btn btn-danger">Supprimer</a>
+                                    <div th:if="${session.utilisateur.hasRessource(ressource.id) && ressource.getType() == 'Matériel'}">
+                                        <a th:href="@{/ressource/removeOne/{id}(id=${ressource.id})}" style="background-color:red;" class="btn btn-success">-1</a>
+                                        Vous en avez
+                                        <span th:text="${session.utilisateur.getNbRessource(ressource.id)}"></span>
+                                        <a th:href="@{/ressource/addUser/{id}(id=${ressource.id})}" style="background-color:green;" class="btn btn-success">+1</a>
+                                    </div>
+                                    <a th:href="@{/ressource/{id}(id=${ressource.id})}" class="btn btn-primary"><i class="fa-regular fa-eye"></i> Consulter</a>
+                                    <a th:if="${session.utilisateur.hasRessource(ressource.id)}" th:href="@{/ressource/removeUser/{id}(id=${ressource.id})}" style="background-color:red;" class="btn btn-success"><i class="fa-solid fa-arrow-right-from-bracket"></i> Déposséder</a>
+                                    <a th:if="${!session.utilisateur.hasRessource(ressource.id)}" th:href="@{/ressource/addUser/{id}(id=${ressource.id})}" style="background-color:green;" class="btn btn-success"><i class="fa-solid fa-arrow-right-to-bracket"></i> Posséder</a>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <a th:href="@{/ressource/create}" class="btn btn-success">Ajouter une ressource</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    $(document).ready(function() {
+        $('#ressourceSearch').on('input', function() {
+            var value = $(this).val().toLowerCase();
+            $('div.row div.col-md-4').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+
+        $('#typeRessource').on('change', function() {
+            var value = $(this).val().toLowerCase();
+            if (value == 'e6e6ff') {
+                value = 'rgb(230, 230, 255)';
+            } else if (value == 'e6ffe9') {
+                value = 'rgb(230, 255, 233)';
+            }
+            $('div.row div.col-md-4').filter(function() {
+                if (value === 'toutes') {
+                    $(this).toggle(true);
+                    return;
+                }
+                var backgroundColor = $(this).find('.card-body').css('background-color');
+                $(this).toggle(backgroundColor === value || value === 'toutes');
+            });
+        });
+    });
+</script>
+</html>
